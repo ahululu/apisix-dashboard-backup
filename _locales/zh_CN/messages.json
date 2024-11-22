@@ -1,0 +1,35 @@
+{
+  "extName": {
+    "message": "APISIX Dashboard 备份工具"
+  },
+  "extDescription": {
+    "message": "备份和恢复 APISIX Dashboard 的配置数据，支持路由、上游、服务和消费者数据。"
+  },
+  "backupButton": {
+    "message": "备份当前站点数据"
+  },
+  "restoreButton": {
+    "message": "恢复当前站点数据"
+  },
+  "selectFile": {
+    "message": "选择备份文件"
+  },
+  "startRestore": {
+    "message": "开始恢复"
+  },
+  "preparingBackup": {
+    "message": "准备备份..."
+  },
+  "selectFilePrompt": {
+    "message": "请选择文件..."
+  },
+  "backupComplete": {
+    "message": "备份完成！"
+  },
+  "restoreComplete": {
+    "message": "恢复完成！"
+  },
+  "errorPrefix": {
+    "message": "错误: $1"
+  }
+} 

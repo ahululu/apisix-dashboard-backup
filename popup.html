@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>APISIX Dashboard Backup</title>
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: transparent;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1d1d1f;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    #status {
+      margin-bottom: 16px;
+      text-align: center;
+      color: #1d1d1f;
+      font-size: 14px;
+    }
+    
+    .form-section {
+      margin-bottom: 16px;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .form-section.active {
+      display: block;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="file"] {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 14px;
+      color: #1d1d1f;
+      transition: all 0.3s ease;
+    }
+    
+    input:focus {
+      outline: none;
+      background: rgba(0, 0, 0, 0.08);
+    }
+    
+    .action-button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #0071e3;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .action-button:hover {
+      background: #0077ed;
+    }
+    
+    .action-button:active {
+      background: #0068d1;
+    }
+    
+    .action-button.processing {
+      cursor: default;
+      background: #0071e3;
+    }
+    
+    .action-button .progress-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: width 0.3s ease;
+    }
+    
+    .action-button .button-text {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .submit-button {
+      background: #34c759;
+    }
+    
+    #progress-container {
+      display: none;
+    }
+    
+    #log-container {
+      margin-top: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+      font-size: 12px;
+      display: none;
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .log-entry {
+      margin: 4px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    
+    .log-success { color: #34c759; }
+    .log-warning { color: #ff9f0a; }
+    .log-error { color: #ff3b30; }
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .file-input-container {
+      position: relative;
+      margin: 8px 0;
+    }
+    
+    .file-input-container input[type="file"] {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+    
+    .file-input-button {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 2px dashed rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .file-input-container:hover .file-input-button {
+      border-color: #0071e3;
+      color: #0071e3;
+    }
+    
+    .file-name {
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      font-size: 12px;
+      word-break: break-all;
+      display: none;
+    }
+    
+    .file-name.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">APISIX Dashboard 备份工具</div>
+    <div id="status"></div>
+    
+    <button id="backup" class="action-button">
+      <div class="progress-overlay" style="width: 0%"></div>
+      <span class="button-text">备份当前站点数据</span>
+    </button>
+    
+    <button id="restore" class="action-button">
+      <div class="progress-overlay" style="width: 0%"></div>
+      <span class="button-text">恢复当前站点数据</span>
+    </button>
+    <div id="restore-form" class="form-section">
+      <div class="file-input-container">
+        <input type="file" 
+               id="restore-file" 
+               accept=".json" 
+               required>
+        <div class="file-input-button">
+          <span>选择备份文件</span>
+        </div>
+        <div class="file-name" id="file-name"></div>
+      </div>
+      <button id="restore-submit" class="action-button submit-button">
+        <div class="progress-overlay" style="width: 0%"></div>
+        <span class="button-text">开始恢复</span>
+      </button>
+    </div>
+    
+    <div id="log-container"></div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 

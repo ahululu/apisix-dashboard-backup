@@ -1,0 +1,35 @@
+{
+  "extName": {
+    "message": "APISIX Dashboard Backup"
+  },
+  "extDescription": {
+    "message": "Backup and restore APISIX Dashboard configurations. Support routes, upstreams, services, and consumers data."
+  },
+  "backupButton": {
+    "message": "Backup Current Site"
+  },
+  "restoreButton": {
+    "message": "Restore Current Site"
+  },
+  "selectFile": {
+    "message": "Select Backup File"
+  },
+  "startRestore": {
+    "message": "Start Restore"
+  },
+  "preparingBackup": {
+    "message": "Preparing backup..."
+  },
+  "selectFilePrompt": {
+    "message": "Please select file..."
+  },
+  "backupComplete": {
+    "message": "Backup complete!"
+  },
+  "restoreComplete": {
+    "message": "Restore complete!"
+  },
+  "errorPrefix": {
+    "message": "Error: $1"
+  }
+} 
