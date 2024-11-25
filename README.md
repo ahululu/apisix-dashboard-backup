@@ -19,7 +19,7 @@ APISIX Dashboard Backup is a Chrome extension for backing up and restoring APISI
 ## Installation
 
 ### Install from Chrome Web Store
-1. Visit [Chrome Web Store](https://chrome.google.com/webstore/detail/[extension-id])
+1. Visit [Chrome Web Store](https://chromewebstore.google.com/detail/apisix-dashboard-%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/lmpmkfjofnifhiooomploklbchoeckfg)
 2. Click "Add to Chrome"
 
 ### Manual Installation
