@@ -20,8 +20,7 @@ APISIX Dashboard Backup 是一个 Chrome 扩展程序，用于备份和恢复 AP
 
 ### 从 Chrome Web Store 安装(还未上线，暂不可用)
 1. 访问 [Chrome Web Store](https://chromewebstore.google.com/detail/apisix-dashboard-%E5%A4%87%E4%BB%BD%E5%B7%A5%E5%85%B7/lmpmkfjofnifhiooomploklbchoeckfg)
-2. 搜索 "APISIX Dashboard Backup"
-3. 点击"添加至 Chrome"
+2. 点击"添加至 Chrome"
 
 ### 手动安装
 1. 下载最新版本的扩展程序
