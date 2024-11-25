@@ -60,4 +60,4 @@ This project is licensed under the Apache License 2.0, see [LICENSE](./LICENSE) 
 
 ## Feedback
 
-For issues or suggestions, please submit an [Issue](https://github.com/[your-repo]/issues). 
+For issues or suggestions, please submit an [Issue](https://github.com/ahululu/apisix-dashboard-backup/issues). 
