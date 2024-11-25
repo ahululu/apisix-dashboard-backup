@@ -1,6 +1,6 @@
 # APISIX Dashboard Backup
 
-[English](./README_en.md) | 简体中文
+[English](./README.md) | 简体中文
 
 APISIX Dashboard Backup 是一个 Chrome 扩展程序，用于备份和恢复 APISIX Dashboard 的配置数据。
 
