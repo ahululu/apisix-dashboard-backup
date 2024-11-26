@@ -518,7 +518,7 @@ async function restoreData(dashboardUrl, token) {
     try {
       addLog('开始解析备份数据...');
       const backup = JSON.parse(fileContent);
-      addLog('备份数据解析成功', 'success');
+      addLog('备份数据解析功', 'success');
       
       const restoreOrder = ['upstreams', 'services', 'consumers', 'routes'];
       let totalItems = 0;
@@ -550,29 +550,76 @@ async function restoreData(dashboardUrl, token) {
           const percent = Math.round((processedItems / totalItems) * 100);
           updateFloatingProgress(percent, `正在处理: ${key} (${processedItems}/${totalItems})`);
           
+          // 移除时间戳字段
           const { create_time, update_time, ...itemData } = item;
           
+          // 特殊处理 consumers 数据
+          if (key === 'consumers') {
+            // 移除 id 字段，只使用 username
+            const { id, ...consumerData } = itemData;
+            
+            // 构造请求 URL 和数据
+            const url = `${dashboardUrl}${endpoint}/${itemData.username}`;
+            
+            try {
+              const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': token,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(consumerData)
+              });
+              
+              const responseText = await response.text();
+              const responseData = responseText ? JSON.parse(responseText) : {};
+              
+              if (!response.ok) {
+                if (responseData.code === 10000 && responseData.message?.includes('exists')) {
+                  addLog(`⚠️ ${key} [${itemData.username}] 已存在，跳过`, 'warning');
+                  skipCount++;
+                } else {
+                  addLog(`❌ 恢复${key} [${itemData.username}] 失败: ${responseText}`, 'error');
+                  errorCount++;
+                }
+              } else {
+                addLog(`✅ 恢复${key} [${itemData.username}] 成功`, 'success');
+                successCount++;
+              }
+            } catch (error) {
+              addLog(`❌ 恢复${key} [${itemData.username}] 时发生错误: ${error.message}`, 'error');
+              errorCount++;
+            }
+            continue;  // 跳过后续处理
+          }
+          
+          // 特殊处理 routes 数据
           if (key === 'routes') {
-            if (!itemData.uri && !Array.isArray(itemData.uris)) {
-              addLog(`⚠️ 路由数据缺少必要的uri/uris字段: ${itemData.id}`, 'warning');
-              skipCount++;
-              continue;
-            }
-            
-            if (itemData.uri && !itemData.uris) {
-              itemData.uris = [itemData.uri];
-              delete itemData.uri;
-              addLog(`转换单个uri为uris数组: ${itemData.id}`, 'info');
-            }
-            
-            // 处理Redis配置
-            if (itemData.plugins && itemData.plugins.limit_req && !itemData.plugins.limit_req.redis_host) {
-              delete itemData.plugins.limit_req;
-              addLog(`⚠️ 路由 [${itemData.id}] 缺少Redis配置，已移除limit_req插件`, 'warning');
+            // 处理 limit-req 插件
+            if (itemData.plugins && itemData.plugins['limit-req']) {
+              const limitReqConfig = itemData.plugins['limit-req'];
+              
+              // 如果没有设置 redis_host，则使用本地限流策略
+              if (!limitReqConfig.redis_host) {
+                limitReqConfig.policy = 'local';
+              }
+              
+              // 确保必要字段存在
+              if (!limitReqConfig.rate) {
+                limitReqConfig.rate = 1;  // 默认值
+              }
+              if (typeof limitReqConfig.burst === 'undefined') {
+                limitReqConfig.burst = 0;  // 默认值
+              }
+              if (!limitReqConfig.key) {
+                limitReqConfig.key = 'remote_addr';  // 默认值
+              }
             }
           }
           
+          // 其他类型数据的处理保持不变
           const url = `${dashboardUrl}${endpoint}/${itemData.id}`;
+          
           const headers = {
             'Authorization': token,
             'Content-Type': 'application/json',
@@ -707,4 +754,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-  
